@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 function main(props) {
     return (
         <View>
-            <Text>메인나오나</Text>
+            <Text>main</Text>
         </View>
     );
 }
