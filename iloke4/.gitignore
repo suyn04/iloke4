@@ -1,3 +1,6 @@
+# Ignore local.properties
+local.properties
+
 # OSX
 #
 .DS_Store
