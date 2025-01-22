@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "279136397347",
+    "firebase_url": "https://iloke-e8475-default-rtdb.firebaseio.com",
+    "project_id": "iloke-e8475",
+    "storage_bucket": "iloke-e8475.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279136397347:android:67c46982b01ee4b0f22996",
+        "android_client_info": {
+          "package_name": "com.iloke4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpB26RD_9B3E7BfQGuPxI7aZIbviMHJe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
