@@ -21,7 +21,7 @@ function index() {
     return (
         <SafeAreaProvider>
             <NavigationContainer>
-                <Stack.Navigator initialRouteName='main'>
+                <Stack.Navigator initialRouteName='board'>
                     <Stack.Screen name='main' component={main}/>
                     <Stack.Screen name='board' component={board}/>
                     <Stack.Screen name='goods' component={goods}/>
