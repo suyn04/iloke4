@@ -14,6 +14,7 @@ enableScreens();
 import main from './main';
 import board from './board/board';
 import goods from './goods/goods';
+import goodsDetail from './goods/goodsDetail';
 import promotion from './promotion/promotion';
 import shop from './shop/shop';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
@@ -74,6 +75,7 @@ function index() {
               headerTitleAlign: 'center',
             })}
           />
+          <Stack.Screen name='goodsDetail' component={goodsDetail}/>
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
