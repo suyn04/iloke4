@@ -13,8 +13,9 @@ import main from './main';
 import board from './board/board';
 import goods from './goods/goods';
 import promotion from './promotion/promotion';
-import shop from './shop/shop';
-import map from './shop/map';
+import shoplist from './shop/shoplist';
+import sample from './shop/sample';
+import shopcopy from './shop/shopcopy';
 
 const Stack = createStackNavigator();  //네비게이션을 Stack 기반으로 동작
 
@@ -27,8 +28,9 @@ function index() {
                     <Stack.Screen name='board' component={board} />
                     <Stack.Screen name='goods' component={goods} />
                     <Stack.Screen name='promotion' component={promotion} />
-                    <Stack.Screen name='shop' component={shop} />
-                    <Stack.Screen name='map' component={map} />
+                    <Stack.Screen name='shoplist' component={shoplist} />
+                    <Stack.Screen name='sample' component={sample} />
+                    <Stack.Screen name='shopcopy' component={shopcopy} />
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>

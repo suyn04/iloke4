@@ -3,7 +3,7 @@
  */
 
 import { AppRegistry } from 'react-native';
-import map from './components/shop/map';
+import shoplist from './components/shop/shoplist';
 import { name as appName } from './app.json';
 
-AppRegistry.registerComponent(appName, () => map);
+AppRegistry.registerComponent(appName, () => shoplist);
