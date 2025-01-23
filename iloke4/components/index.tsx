@@ -67,7 +67,7 @@ function index() {
               headerTitle: () => (
                 <TouchableOpacity onPress={() => navigation.navigate('Stack', { screen: 'main' })}>
                   <Image
-                    source={require('./img/main/logo.png')} // 로고 이미지 경로
+                    source={require('./image/main/logo.png')} // 로고 이미지 경로
                     style={styles.headerImage}
                   />
                 </TouchableOpacity>
