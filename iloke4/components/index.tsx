@@ -12,6 +12,7 @@ enableScreens();
 import main from './main';
 import board from './board/board';
 import goods from './goods/goods';
+import goodsDetail from './goods/goodsDetail';
 import promotion from './promotion/promotion';
 import shop from './shop/shop';
 
@@ -21,10 +22,11 @@ function index() {
     return (
         <SafeAreaProvider>
             <NavigationContainer>
-                <Stack.Navigator initialRouteName='main'>
+                <Stack.Navigator initialRouteName='goods'>
                     <Stack.Screen name='main' component={main}/>
                     <Stack.Screen name='board' component={board}/>
                     <Stack.Screen name='goods' component={goods}/>
+                    <Stack.Screen name='goodsDetail' component={goodsDetail}/>
                     <Stack.Screen name='promotion' component={promotion}/>
                     <Stack.Screen name='shop' component={shop}/>
                 </Stack.Navigator>
