@@ -16,7 +16,7 @@ import board from './board/board';
 import goods from './goods/goods';
 import goodsDetail from './goods/goodsDetail';
 import promotion from './promotion/promotion';
-import shop from './shop/shop';
+import shoplist from './shop/shoplist';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const Tab = createBottomTabNavigator(); // Footer를 위한 Bottom Tab Navigator 생성
@@ -51,7 +51,7 @@ function AppTabs() {
             <Tab.Screen name="goods" component={goods} options={{ title: 'Goods' }} />
             <Tab.Screen name="event" component={promotion} options={{ title: 'Event' }} />
             <Tab.Screen name="board" component={board} options={{ title: 'Board' }} />
-            <Tab.Screen name="shop" component={shop} options={{ title: 'Shop' }} />
+            <Tab.Screen name="shop" component={shoplist} options={{ title: 'Shop' }} />
         </Tab.Navigator>
     );
 }
@@ -66,7 +66,7 @@ function index() {
                     <Stack.Screen name='board' component={board} />
                     <Stack.Screen name='goods' component={goods} />
                     <Stack.Screen name='promotion' component={promotion} />
-                    <Stack.Screen name='shop' component={shop} />
+                    <Stack.Screen name='shop' component={shoplist} />
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>
