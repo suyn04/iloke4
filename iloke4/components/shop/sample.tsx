@@ -1,14 +1,17 @@
 import Geolocation from '@react-native-community/geolocation';
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, View } from 'react-native';
+import { PermissionsAndroid, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
 
 
 function sample() {
-
+    // const { shop } = route.params;
     const [region, setregion] = useState(null)
     const [userpos, setuserpos] = useState(null)
+    const [shops, setShops] = useState([]); // 전체 매장 데이터
+    const [searchQuery, setSearchQuery] = useState(''); // 검색어
+    const [filteredShops, setFilteredShops] = useState([]);
     const stores = [
         {
             id: "store1",
@@ -160,34 +163,88 @@ function sample() {
             })
         })
     }
-
     useEffect(() => {
-        const fetchLocation = async () => {
-            const haspermission = await requestlocationPermission()
-            if (haspermission) {
-                console.log("위치권한부여 성공")
+        const initializeApp = async () => {
+            // 위치 권한 요청 및 사용자 현재 위치 설정
+            const hasPermission = await requestlocationPermission();
+            if (hasPermission) {
+                console.log("위치 권한 부여 성공");
                 setregion({
-                    latitude: 37.498207,
-                    longitude: 22.027611,
+                    latitude: 37.498207, // 기본 위치
+                    longitude: 127.02963, // 기본 위치
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
-                })
-                //gps 좌표 받기 호출
-                getcurrentlocation()
+                });
+                // 현재 위치 가져오기
+                getcurrentlocation();
+            } else {
+                console.log("위치 권한 부여 거부");
             }
-            else {
-                console.log("위치권한부여 거부")
-            }
+
+            // Firebase에서 데이터 가져오기
+            const shopRef = database().ref('shop');
+            const onValueChange = shopRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const shopArray = Object.keys(data).map((key) => data[key]);
+                    setShops(shopArray); // 전체 매장 데이터 설정
+                    setFilteredShops(shopArray); // 초기 필터링 데이터 설정
+                }
+            });
+
+            // Firebase 리스너 정리
+            return () => shopRef.off('value', onValueChange);
+        };
+        console.log("setShops", shops)
+        initializeApp();
+    }, []);
+
+    useEffect(() => {
+        // 검색어가 변경될 때 필터링
+        if (searchQuery.trim() === '') {
+            setFilteredShops(shops); // 검색어가 없을 경우 전체 매장 표시
+        } else {
+            const filtered = shops.filter((shop) =>
+                shop.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredShops(filtered);
         }
-        fetchLocation()
-    }, [])
+        console.log("setFilteredShops", filteredShops)
+    }, [searchQuery, shops]);
+
+    // useEffect(() => {
+    //     const fetchLocation = async () => {
+    //         const haspermission = await requestlocationPermission()
+    //         if (haspermission) {
+    //             console.log("위치권한부여 성공")
+    //             setregion({
+    //                 latitude: 37.498207,
+    //                 longitude: 127.029630,
+    //                 latitudeDelta: 0.01,
+    //                 longitudeDelta: 0.01,
+    //             })
+    //             //gps 좌표 받기 호출
+    //             getcurrentlocation()
+    //         }
+    //         else {
+    //             console.log("위치권한부여 거부")
+    //         }
+    //     }
+    //     fetchLocation()
+    // }, [])
 
     return (
         <View style={{ flex: 1 }}>
+            <TextInput
+                style={styles.searchInput}
+                placeholder="매장 이름 검색"
+                value={searchQuery}
+                onChangeText={(text) => setSearchQuery(text)}
+            />
             {region && (
                 <MapView style={{ flex: 1 }} region={region}>
                     <Marker coordinate={userpos} title='현재위치' />
-                    {stores.map((store) => (
+                    {shops.map((store) => (
                         <Marker
                             key={store.id}
                             coordinate={store.location}
@@ -199,9 +256,26 @@ function sample() {
                 </MapView>
             )
             }
-
         </View>
     )
 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    map: {
+        flex: 1,
+    },
+
+    searchInput: {
+        height: 50,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        margin: 10,
+        borderRadius: 5,
+        backgroundColor: '#fff',
+    }
+})
 
 export default sample;

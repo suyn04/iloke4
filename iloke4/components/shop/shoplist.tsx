@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Image, Alert } from 'react-native';
 import database from '@react-native-firebase/database';
-import { useNavigation } from '@react-navigation/native';
+// import { useNavigation } from '@react-navigation/native';
 
 const shoplist = () => {
     const [shops, setShops] = useState([]);
     const [selectedShop, setSelectedShop] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
 
     useEffect(() => {
         const shopRef = database().ref('shop');
@@ -41,7 +41,7 @@ const shoplist = () => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('sample', { shop: item })}>
+            <TouchableOpacity style={styles.maplmg} onPress={() => Alert.alert("뜬다")}>
                 <Text style={styles.closeButtonText}>지도보기</Text>
             </TouchableOpacity>
             <Text style={styles.title}>매장 리스트</Text>
@@ -159,6 +159,14 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         backgroundColor: '#007AFF',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    maplmg: {
+        width: 50,
+        backgroundColor: '#faf',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',

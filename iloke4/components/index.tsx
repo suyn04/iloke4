@@ -29,8 +29,8 @@ function index() {
                     <Stack.Screen name='goods' component={goods} />
                     <Stack.Screen name='promotion' component={promotion} />
                     <Stack.Screen name='shoplist' component={shoplist} />
-                    <Stack.Screen name='sample' component={sample} />
-                    <Stack.Screen name='shopcopy' component={shopcopy} />
+                    {/* <Stack.Screen name='sample' component={sample} />
+                    <Stack.Screen name='shopcopy' component={shopcopy} /> */}
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>
