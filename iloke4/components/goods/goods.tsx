@@ -35,14 +35,17 @@ function Goods({ navigation }) {
         { id:28, image: require('../image/goods/chair5.jpg'), name: '짱짱 의자', price: '250,000 원', description: "짱짱한 의자" },
         { id:29, image: require('../image/goods/chair6.jpg'), name: '튼튼 의자', price: '270,000 원', description: "튼튼한 의자" },
         { id:30, image: require('../image/goods/sofa1.jpg'), name: '튼튼 쇼파', price: '410,000 원', description: "튼튼한 쇼파" },
-        { id:31, image: require('../image/goods/sofa2.jpg'), name: '쩌는 쇼파', price: '486,000 원', description: "쩌는 쇼파" },
+        { id:31, image: require('../image/goods/chair3.jpg'), name: '깔끔 의자', price: '210,000 원', description: "깔끔한 의자" },
+        { id:32, image: require('../image/goods/chair4.jpg'), name: '와우 의자', price: '310,000 원', description: "와우한 의자" },
+        { id:33, image: require('../image/goods/chair5.jpg'), name: '짱짱 의자', price: '250,000 원', description: "짱짱한 의자" },
+        { id:34, image: require('../image/goods/chair6.jpg'), name: '튼튼 의자', price: '270,000 원', description: "튼튼한 의자" },
     ];
 
     const [goodsData, setGoodsData] = useState([]); // 현재 화면에 표시할 데이터
     const [page, setPage] = useState(1); // 현재 페이지 번호
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
     const [enableLoading, setEnableLoading] = useState(true); // 로딩 표시 숨기기 여부
-    const itemsPerPage = 12; // 한 번에 로드할 데이터 개수
+    const itemsPerPage = 10; // 한 번에 로드할 데이터 개수
 
     // 초기 데이터 로드
     useEffect(() => {
@@ -63,7 +66,7 @@ function Goods({ navigation }) {
             if (newData.length > 0) {
                 setGoodsData((prevData) => [...prevData, ...newData]);
                 setPage((prevPage) => prevPage + 1);
-            }else{
+            }else{ 
                 Alert.alert('마지막 상품입니다.');
                 setEnableLoading(false);
             }
@@ -83,7 +86,7 @@ function Goods({ navigation }) {
             onMomentumScrollEnd={(e) => {
                 // 최하단 스크롤 시 추가 데이터 로드
                 const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
-                if (contentOffset.y + layoutMeasurement.height >= contentSize.height) {
+                if (contentOffset.y + layoutMeasurement.height >= contentSize.height-1) {
                     loadMoreData();
                 }
             }}
