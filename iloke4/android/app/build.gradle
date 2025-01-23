@@ -125,3 +125,9 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+project.ext.vectoricons = [
+    iconFontNames: [ 'MaterialCommunityIcons.ttf' ] // 여기에 폰트 이름 추가
+]
