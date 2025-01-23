@@ -61,12 +61,21 @@ function index() {
     return (
         <SafeAreaProvider>
             <NavigationContainer>
-                <Stack.Navigator initialRouteName='main'>
-                    <Stack.Screen name='main' component={main} />
-                    <Stack.Screen name='board' component={board} />
-                    <Stack.Screen name='goods' component={goods} />
-                    <Stack.Screen name='promotion' component={promotion} />
-                    <Stack.Screen name='shop' component={shoplist} />
+                <Stack.Navigator>
+                    <Stack.Screen name="Stack" component={AppTabs}
+                        options={({ navigation }) => ({
+                            headerTitle: () => (
+                                <TouchableOpacity onPress={() => navigation.navigate('Stack', { screen: 'main' })}>
+                                    <Image
+                                        source={require('./image/main/logo.png')} // 로고 이미지 경로
+                                        style={styles.headerImage}
+                                    />
+                                </TouchableOpacity>
+                            ),
+                            headerTitleAlign: 'center',
+                        })}
+                    />
+                    <Stack.Screen name='goodsDetail' component={goodsDetail} />
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>

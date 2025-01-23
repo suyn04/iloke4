@@ -4,10 +4,10 @@ import Swiper from 'react-native-web-swiper';
 
 function main(props) {
     const imgs = [
-        require('./img/main/main_1.jpg'),
-        require('./img/main/main_2.jpg'),
-        require('./img/main/main_3.jpg'),
-        require('./img/main/main_4.jpg'),
+        require('./image/main/main_1.jpg'),
+        require('./image/main/main_2.jpg'),
+        require('./image/main/main_3.jpg'),
+        require('./image/main/main_4.jpg'),
     ];
 
     // 이벤트 페이지로 이동하는 함수
