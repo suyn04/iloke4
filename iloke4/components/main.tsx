@@ -86,21 +86,22 @@ function main({navigation}) {
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.wrapper}>
-        <View style={styles.banner}>
-          <Swiper
-            containerStyle={{width: '100%', height: 500}}
-            loop
-            timeout={3}
-            controlsEnabled={false}>
-            {promotionData.map((item, i) => (
-              <View key={i}>
-                <TouchableOpacity onPress={() => navigation.navigate('promotionDetail', {item})}>
-                  <Image source={item.image} style={styles.img} />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </Swiper>
-        </View>
+      <View style={styles.banner}>
+        <Swiper
+          containerStyle={{ width: '100%', height: 500 }}
+          loop
+          timeout={3}
+          controlsEnabled={false}>
+          {promotionData.map((item, i) => (
+            <View key={i} style={styles.promotionContainer}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('promotionDetail', { item })}>
+                <Image source={item.image} style={styles.img} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </Swiper>
+      </View>
 
         <TouchableOpacity style={styles.btn} onPress={goEvent}>
           <Text style={styles.btnText}>이벤트 확인하기</Text>
@@ -162,6 +163,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  promotionContainer: {
+    flex: 1,
+    position: 'relative',
   },
   btn: {
     backgroundColor: '#000',
