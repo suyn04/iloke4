@@ -36,20 +36,20 @@ function main({navigation}) {
       price: '300,000 원',
       description: '베이직하고 베이직한 서랍',
     },
-	{
-		id: 3,
-		image: require('./image/goods/drawer2.jpg'),
-		name: '모던 서랍',
-		price: '400,000 원',
-		description: '모던한 서랍',
-	  },
-	  {
-		id: 4,
-		image: require('./image/goods/drawer3.jpg'),
-		name: '원더플 서랍',
-		price: '300,000 원',
-		description: '원더플한 서랍',
-	  },
+    {
+      id: 3,
+      image: require('./image/goods/drawer2.jpg'),
+      name: '모던 서랍',
+      price: '400,000 원',
+      description: '모던한 서랍',
+    },
+    {
+      id: 4,
+      image: require('./image/goods/drawer3.jpg'),
+      name: '원더플 서랍',
+      price: '300,000 원',
+      description: '원더플한 서랍',
+    },
   ];
 
   const rows = [];
@@ -82,36 +82,40 @@ function main({navigation}) {
 
         <Text style={styles.title}>고객님을 위한 추천상품</Text>
 
-		<ScrollView
-			horizontal
-			contentContainerStyle={styles.horizontalScroll}
-			showsHorizontalScrollIndicator={false}>
-			{goodsData.map((item, index) => (
-				<TouchableOpacity
-				key={index}
-				style={styles.card}
-				onPress={() => navigation.navigate('goodsDetail', { item })}>
-				<Image source={item.image} style={styles.image} />
-				<View style={styles.textContainer}>
-					<Text style={styles.name}>{item.name}</Text>
-					<Text style={styles.price}>{item.price}</Text>
-				</View>
-				</TouchableOpacity>
-			))}
-		</ScrollView>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.horizontalScroll}
+          showsHorizontalScrollIndicator={false}>
+          {goodsData.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.card}
+              onPress={() => navigation.navigate('goodsDetail', {item})}>
+              <Image source={item.image} style={styles.image} />
+              <View style={styles.textContainer}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.price}>{item.price}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         <View style={styles.bottomTextContainer}>
-			<Text style={styles.bottomText}>고객센터 : 01012341234</Text>
-			<Text style={styles.bottomText}>평일09:00 ~ 17:30 (주말 및 공휴일 휴무)</Text>
-			<Text style={styles.bottomText}>점심12:00 ~ 13:00</Text>
-			<Text style={styles.bottomText}>
-				(주)이로케 대표 : 간첩 서울 서초구 서초대로78길 48 송림빌딩
-			</Text>
-			<Text style={styles.bottomText}>사업자등록번호 : 123-456-789</Text>
-			<Text style={styles.bottomText}>통신판매업신고번호 : 2024-배고프다-0920</Text>
-			<Text style={styles.bottomText}>개인정보보호책임자 : 우수정</Text>
-			<Text style={styles.bottomText}>팩스번호 : 123-456-789</Text>
-			<Text style={styles.bottomText}>이메일 : abcde@abcde.co.kr</Text>
+          <Text style={styles.bottomText}>고객센터 : 01012341234</Text>
+          <Text style={styles.bottomText}>
+            평일09:00 ~ 17:30 (주말 및 공휴일 휴무)
+          </Text>
+          <Text style={styles.bottomText}>점심12:00 ~ 13:00</Text>
+          <Text style={styles.bottomText}>
+            (주)이로케 대표 : 간첩 서울 서초구 서초대로78길 48 송림빌딩
+          </Text>
+          <Text style={styles.bottomText}>사업자등록번호 : 123-456-789</Text>
+          <Text style={styles.bottomText}>
+            통신판매업신고번호 : 2024-배고프다-0920
+          </Text>
+          <Text style={styles.bottomText}>개인정보보호책임자 : 우수정</Text>
+          <Text style={styles.bottomText}>팩스번호 : 123-456-789</Text>
+          <Text style={styles.bottomText}>이메일 : abcde@abcde.co.kr</Text>
         </View>
       </ScrollView>
     </View>
@@ -151,7 +155,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 10,
-	textAlign: 'center'
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
@@ -189,10 +193,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#005d75',
   },
   bottomText: {
-	color:'#fff'
+    color: '#fff',
   },
   horizontalScroll: {
-	paddingHorizontal: 10,
+    paddingHorizontal: 10,
   },
 });
 
