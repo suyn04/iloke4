@@ -15,6 +15,9 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import database from '@react-native-firebase/database'
 import { ScrollView } from 'react-native-gesture-handler';
+import { Picker } from '@react-native-picker/picker';
+
+
 
 function board(props) {
 
@@ -28,14 +31,26 @@ function board(props) {
     // 목록 상태 관리
     const [datas, setDatas] = useState([])
 
+    // modal select 관리
+    const [selectedValue, setSelectedValue] = useState("");
+
     // 글쓰기 목록 불러오기
     const dataList = () => {
         const listRef = database().ref('board')
         listRef.on('value', snapshot=>{
             const data = snapshot.val()
             let arr = []
+
             for(const key in data){
-                arr.push({id:key, ...data[key]})
+                const regString = data[key].regdate
+                const regStringDate = new Date(regString)
+                const year = regStringDate.getFullYear()
+                const month = (regStringDate.getMonth() + 1).toString().padStart(2, '0')
+                const date = regStringDate.getDate()
+                
+                const regDate = `${year}.${month}.${date}`
+                
+                arr.push({id:key, regDate:regDate, ...data[key]})
             }
 
             setDatas(arr)
@@ -121,8 +136,8 @@ function board(props) {
 
     // 게시글 추가 함수
     const addPost = () => {
-        if (!title || !content) {
-            Alert.alert('알림', '제목과 내용을 모두 입력해주세요.');
+        if (selectedValue == 'null'|| selectedValue == '' || !content || !title) {
+            Alert.alert('알림', '모든 내용을 입력해주세요.');
             return;
         }
 
@@ -130,10 +145,12 @@ function board(props) {
         boardRef.set({
             title,
             content,
+            selected: selectedValue,
             // imgUrl: imgUrls, // 이미지 URL 추가
             regdate: new Date().toISOString(),
         })
 
+        setSelectedValue('null'); // select 내용 초기화
         setTitle('');
         setContent('');
         setImgUrls([]); // 이미지 초기화
@@ -164,6 +181,14 @@ function board(props) {
         );
     };
 
+    const cancelPost = () => {
+        setSelectedValue('null')
+        setTitle('')
+        setContent('')
+        setImgUrls([]);
+        setModalVisible(false)
+    }
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -171,7 +196,9 @@ function board(props) {
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item, index }) => (
                     <View style={styles.post}>
+                        <Text>{item.regDate}</Text>
                         <Text style={styles.postTitle}>{item.title}</Text>
+                        <Text>{item.selected}</Text>
                         <Text style={styles.postContent}>{item.content}</Text>
                         {/* 게시물에 이미지가 있으면 표시 */}
                         {item.imgUrl && item.imgUrl.map((uri, idx) => (
@@ -197,7 +224,7 @@ function board(props) {
                 style={styles.addButton}
                 onPress={() => setModalVisible(true)}
             >
-                <Text style={styles.addButtonText}>글쓰기</Text>
+                <Text style={styles.addButtonText}>리뷰쓰기</Text>
             </TouchableOpacity>
 
             {/* 글쓰기 모달 */}
@@ -209,8 +236,20 @@ function board(props) {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <ScrollView>
-                            <Text>문의</Text>
+                        <ScrollView style={{ maxHeight: 600 }}>
+                            <Text style={styles.modalTitle}>문의</Text>
+                            <Picker
+                            style={styles.pickerStyle}
+                            selectedValue={selectedValue}
+                            onValueChange={(itemValue) => setSelectedValue(itemValue)}
+                            >
+                                <Picker.Item label="문의 유형 선택" value="null" enabled={false} />
+                                <Picker.Item label="상품" value="상품" />
+                                <Picker.Item label="배송" value="배송" />
+                                <Picker.Item label="반품/환불" value="반품/환불" />
+                                <Picker.Item label="교환/변경" value="교환/변경" />
+                                <Picker.Item label="기타" value="기타" />
+                            </Picker>
                             <TextInput
                                 style={styles.input}
                                 placeholder="제목을 입력하세요"
@@ -233,7 +272,7 @@ function board(props) {
                                 />
                             ))}
                             <View style={styles.modalButtons}>
-                                <Button title="취소" onPress={() => setModalVisible(false)} />
+                                <Button title="취소" onPress={cancelPost} />
                                 <Button title="카메라" onPress={openCamera} />
                                 <Button title="갤러리" onPress={openGallery} />
                                 <Button title="등록" onPress={addPost} />
@@ -313,6 +352,17 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 10,
         elevation: 10,
+    },
+    modalTitle:{
+        fontWeight:'bold',
+        fontSize:20,
+        textAlign:'center',
+        marginBottom:10
+    },
+    pickerStyle:{
+        display:'block',
+        borderWidth:1,
+        borderColor:'#333'
     },
     input: {
         borderWidth: 1,
