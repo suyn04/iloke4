@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import database from '@react-native-firebase/database'
+import { ScrollView } from 'react-native-gesture-handler';
 
 function board(props) {
 
@@ -22,6 +24,24 @@ function board(props) {
     // 카메라 및 갤러리 권한 상태
     const [camChk, setCamChk] = useState(false);
     const [galChk, setGalChk] = useState(false);
+
+    // 목록 상태 관리
+    const [datas, setDatas] = useState([])
+
+    // 글쓰기 목록 불러오기
+    const dataList = () => {
+        const listRef = database().ref('board')
+        listRef.on('value', snapshot=>{
+            const data = snapshot.val()
+            let arr = []
+            for(const key in data){
+                arr.push({id:key, ...data[key]})
+            }
+
+            setDatas(arr)
+            console.log('데이터리스트:', arr)
+        })
+    }
 
     // 권한 요청 (컴포넌트가 처음 렌더링될 때)
     useEffect(() => {
@@ -43,7 +63,12 @@ function board(props) {
         };
 
         checkPermissions();
+        dataList()
     }, []);
+
+    
+
+        
 
     // 카메라 열기
     const openCamera = async () => {
@@ -90,7 +115,6 @@ function board(props) {
     };
 
     // 게시글 목록 상태 관리
-    const [posts, setPosts] = useState([]);
     const [modalVisible, setModalVisible] = useState(false); // 글쓰기 모달 표시 여부
     const [title, setTitle] = useState(''); // 제목
     const [content, setContent] = useState(''); // 내용
@@ -102,14 +126,14 @@ function board(props) {
             return;
         }
 
-        const newPost = {
-            id: posts.length + 1,
+        const boardRef = database().ref('board').push()
+        boardRef.set({
             title,
             content,
-            imgUrl: imgUrls, // 이미지 URL 추가
-        };
+            // imgUrl: imgUrls, // 이미지 URL 추가
+            regdate: new Date().toISOString(),
+        })
 
-        setPosts((prev) => [...prev, newPost]);
         setTitle('');
         setContent('');
         setImgUrls([]); // 이미지 초기화
@@ -118,13 +142,32 @@ function board(props) {
 
     // 게시글 삭제 함수
     const deletePost = (id) => {
-        setPosts((prev) => prev.filter((post) => post.id !== id));
+        Alert.alert(
+            "게시글 삭제",
+            "정말 삭제하시겠습니까?",
+            [
+                {
+                    text: "취소",
+                    style: "cancel",
+                },
+                {
+                    text: "삭제",
+                    onPress: () => {
+                        Alert.alert('게시글 삭제','삭제되었습니다.')
+                        const boardRef = database().ref(`/board/${id}`)
+                        boardRef.remove()
+                    },
+                    style: "destructive",
+                },
+            ],
+            { cancelable: false } // 바깥 터치로 닫기 방지
+        );
     };
 
     return (
         <View style={styles.container}>
             <FlatList
-                data={posts}
+                data={datas}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item, index }) => (
                     <View style={styles.post}>
@@ -166,33 +209,36 @@ function board(props) {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="제목을 입력하세요"
-                            value={title}
-                            onChangeText={setTitle}
-                        />
-                        <TextInput
-                            style={[styles.input, styles.textArea]}
-                            placeholder="내용을 입력하세요"
-                            value={content}
-                            onChangeText={setContent}
-                            multiline
-                        />
-                        {/* 모달 내 이미지 표시 */}
-                        {imgUrls && imgUrls.map((uri, idx) => (
-                            <Image
-                                key={idx}
-                                source={{ uri }}
-                                style={{ width: 200, height: 200, marginTop: 20 }}
+                        <ScrollView>
+                            <Text>문의</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="제목을 입력하세요"
+                                value={title}
+                                onChangeText={setTitle}
                             />
-                        ))}
-                        <View style={styles.modalButtons}>
-                            <Button title="취소" onPress={() => setModalVisible(false)} />
-                            <Button title="카메라" onPress={openCamera} />
-                            <Button title="갤러리" onPress={openGallery} />
-                            <Button title="등록" onPress={addPost} />
-                        </View>
+                            <TextInput
+                                style={[styles.input, styles.textArea]}
+                                placeholder="내용을 입력하세요"
+                                value={content}
+                                onChangeText={setContent}
+                                multiline
+                            />
+                            {/* 모달 내 이미지 표시 */}
+                            {imgUrls && imgUrls.map((uri, idx) => (
+                                <Image
+                                    key={idx}
+                                    source={{ uri }}
+                                    style={{ width: 200, height: 200, marginTop: 20 }}
+                                />
+                            ))}
+                            <View style={styles.modalButtons}>
+                                <Button title="취소" onPress={() => setModalVisible(false)} />
+                                <Button title="카메라" onPress={openCamera} />
+                                <Button title="갤러리" onPress={openGallery} />
+                                <Button title="등록" onPress={addPost} />
+                            </View>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>
