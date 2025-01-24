@@ -21,6 +21,37 @@ function main({navigation}) {
     navigation.navigate('event');
   };
 
+  const promotionData = [
+    {
+      id: 1,
+      image: require('./image/main/main_1.jpg'),
+      name: '신규 구매자 대상 10% 할인 이벤트',
+      period: '상시',
+      url: 'https://www.instagram.com/p/DFMQp0ZTDdM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
+    },
+    {
+      id: 2,
+      image: require('./image/main/main_2.jpg'),
+      name: '신년맞이 거실 제품 2개 이상 구매시 램프 증정 이벤트',
+      period: '2025.1.1 ~ 2025.1.31',
+      url: 'https://www.instagram.com/p/DFMQsBqTjRV/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
+    },
+    {
+      id: 3,
+      image: require('./image/main/main_3.jpg'),
+      name: '수험생 인증시 책상, 의자 10% 할인 이벤트',
+      period: '2024.12.1 ~ 2025.2.28',
+      url: 'https://www.instagram.com/p/DFMQ1qyT1Oa/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
+    },
+    {
+      id: 4,
+      image: require('./image/main/main_4.jpg'),
+      name: '디스플레이 샹품 40% 할인 구매 이벤트',
+      period: '2025.1.1 ~ 2025.3.30',
+      url: 'https://www.instagram.com/p/DFMQ2iUTzJq/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
+    },
+  ];
+
   const goodsData = [
     {
       id: 1,
@@ -52,11 +83,6 @@ function main({navigation}) {
     },
   ];
 
-  const rows = [];
-  for (let i = 0; i < goodsData.length; i += 2) {
-    rows.push(goodsData.slice(i, i + 2));
-  }
-
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.wrapper}>
@@ -66,10 +92,10 @@ function main({navigation}) {
             loop
             timeout={3}
             controlsEnabled={false}>
-            {imgs.map((item, i) => (
+            {promotionData.map((item, i) => (
               <View key={i}>
-                <TouchableOpacity>
-                  <Image source={item} style={styles.img} />
+                <TouchableOpacity onPress={() => navigation.navigate('promotionDetail', {item})}>
+                  <Image source={item.image} style={styles.img} />
                 </TouchableOpacity>
               </View>
             ))}
