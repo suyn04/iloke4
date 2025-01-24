@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ScrollView, View, Image, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { ScrollView, View, Image, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, TextInput } from 'react-native';
 
-function Goods({ navigation }) {
-    // 전체 데이터 (실제 프로젝트에서는 서버에서 받아올 데이터로 구현 가능)
+function goods({ navigation }) {
     const allGoodsData = [
         { id:1, image: require('../image/goods/chair1.jpg'), name: '모던 의자', price: '200,000 원', description: "모던하고 모던하고 모던한 의자" },
         { id:2, image: require('../image/goods/drawer1.jpg'), name: '베이직 서랍', price: '300,000 원', description: "베이직하고 베이직한 서랍" },
@@ -41,80 +40,104 @@ function Goods({ navigation }) {
         { id:34, image: require('../image/goods/chair6.jpg'), name: '튼튼 의자', price: '270,000 원', description: "튼튼한 의자" },
     ];
 
-    const [goodsData, setGoodsData] = useState([]); // 현재 화면에 표시할 데이터
-    const [page, setPage] = useState(1); // 현재 페이지 번호
-    const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-    const [enableLoading, setEnableLoading] = useState(true); // 로딩 표시 숨기기 여부
-    const itemsPerPage = 10; // 한 번에 로드할 데이터 개수
+    const [goodsData, setGoodsData] = useState([]);
+    const [page, setPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const scrollViewRef = useRef(null); // ScrollView 참조
 
-    // 초기 데이터 로드
+    const itemsPerPage = 10;
+
     useEffect(() => {
         loadMoreData();
     }, []);
 
-    // 데이터 로드 함수
     const loadMoreData = () => {
-        if (isLoading) return; // 이미 로딩 중이면 중복 호출 방지
+        if (isLoading) return;
         setIsLoading(true);
-
+    
         setTimeout(() => {
             const startIndex = (page - 1) * itemsPerPage;
             const endIndex = page * itemsPerPage;
-            
+    
             const newData = allGoodsData.slice(startIndex, endIndex);
-            
+    
             if (newData.length > 0) {
                 setGoodsData((prevData) => [...prevData, ...newData]);
                 setPage((prevPage) => prevPage + 1);
-            }else{ 
-                Alert.alert('마지막 상품입니다.');
-                setEnableLoading(false);
+            } else {
+                // 상품이 더 이상 없을 때 알림
+                if (goodsData.length === allGoodsData.length) {
+                    Alert.alert('마지막 상품입니다.');
+                }
             }
             setIsLoading(false);
-        }, 1000); // 로딩 효과를 위해 1초 지연
+        }, 1000);
     };
+    
+    const filteredGoods = goodsData.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    // 데이터를 두 줄로 나누기
     const rows = [];
-    for (let i = 0; i < goodsData.length; i += 2) {
-        rows.push(goodsData.slice(i, i + 2));
+    for (let i = 0; i < filteredGoods.length; i += 2) {
+        rows.push(filteredGoods.slice(i, i + 2));
     }
 
+    const scrollToTop = () => {
+        scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    };
+
     return (
-        <ScrollView
-            contentContainerStyle={styles.container}
-            onMomentumScrollEnd={(e) => {
-                // 최하단 스크롤 시 추가 데이터 로드
-                const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
-                if (contentOffset.y + layoutMeasurement.height >= contentSize.height-1) {
-                    loadMoreData();
-                }
-            }}
-        >
-            {rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.row}>
-                    {row.map((item, itemIndex) => (
-                        <TouchableOpacity
-                            key={itemIndex}
-                            style={styles.card}
-                            onPress={() => navigation.navigate('goodsDetail', { item })}
-                        >
-                            <Image source={item.image} style={styles.image} />
-                            <View style={styles.textContainer}>
-                                <Text style={styles.name}>{item.name}</Text>
-                                <Text style={styles.price}>{item.price}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
+        <>
+            <ScrollView
+                contentContainerStyle={styles.container}
+                onMomentumScrollEnd={(e) => {
+                    const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
+                    if (contentOffset.y + layoutMeasurement.height >= contentSize.height-1) {
+                        loadMoreData();
+                    }
+                }}
+                ref={scrollViewRef}
+            >
+                <View style={styles.searchContainer}>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="상품 제목 검색"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
                 </View>
-            ))}
-            {
-                enableLoading &&
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#00f" />
-                </View>
-            }
-        </ScrollView>
+
+                {rows.map((row, rowIndex) => (
+                    <View key={rowIndex} style={styles.row}>
+                        {row.map((item, itemIndex) => (
+                            <TouchableOpacity
+                                key={itemIndex}
+                                style={styles.card}
+                                onPress={() => navigation.navigate('goodsDetail', { item })}
+                            >
+                                <Image source={item.image} style={styles.image} />
+                                <View style={styles.textContainer}>
+                                    <Text style={styles.name}>{item.name}</Text>
+                                    <Text style={styles.price}>{item.price}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                ))}
+
+                {isLoading && (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#00f" />
+                    </View>
+                )}
+            </ScrollView>
+
+            <TouchableOpacity style={styles.scrollToTopButton} onPress={scrollToTop}>
+                <Text style={styles.scrollToTopText}>TOP</Text>
+            </TouchableOpacity>
+        </>
     );
 }
 
@@ -122,6 +145,21 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         paddingVertical: 10,
+    },
+    searchContainer: {
+        width: '100%',
+        padding: 10,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    searchInput: {
+        width: '100%',
+        height: 40,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 5,
+        paddingLeft: 10,
     },
     row: {
         flexDirection: 'row',
@@ -163,6 +201,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    scrollToTopButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        backgroundColor: '#000',
+        borderRadius: 30,
+        padding: 10,
+        zIndex: 1,
+    },
+    scrollToTopText: {
+        color: '#fff',
+        fontSize: 20,
+    },
 });
 
-export default Goods;
+export default goods;
