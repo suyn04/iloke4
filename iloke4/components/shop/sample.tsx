@@ -1,7 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, StyleSheet, TextInput, View } from 'react-native';
-import { Text } from 'react-native-gesture-handler';
+import { PermissionsAndroid, StyleSheet, TextInput, View, Text } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 
@@ -135,83 +134,84 @@ function sample() {
         },
     ];
 
-    const requestlocationPermission = async () => {
-        const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-                title: "위치권한",
-                message: "이 앱은 사용자 위치 정보를 사용합니다.",
-                buttonNeutral: "나중에",
-                buttonNegative: "취소",
-                buttonPositive: "확인"
+    // const requestlocationPermission = async () => {
+    //     const granted = await PermissionsAndroid.request(
+    //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    //         {
+    //             title: "위치권한",
+    //             message: "이 앱은 사용자 위치 정보를 사용합니다.",
+    //             buttonNeutral: "나중에",
+    //             buttonNegative: "취소",
+    //             buttonPositive: "확인"
 
-            }
-        )
-        return granted === PermissionsAndroid.RESULTS.GRANTED
-    }
-    // 현재위치가져오기
-    const getcurrentlocation = () => {
-        Geolocation.getCurrentPosition((pos) => {
-            const { latitude, longitude } = pos.coords
-            console.log("현재위치보자:", latitude, longitude);
-            setuserpos({ latitude, longitude }) //사용자위치업데이트
-            setregion({
-                latitude: latitude,
-                longitude: longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-            })
-        })
-    }
-    useEffect(() => {
-        const initializeApp = async () => {
-            // 위치 권한 요청 및 사용자 현재 위치 설정
-            const hasPermission = await requestlocationPermission();
-            if (hasPermission) {
-                console.log("위치 권한 부여 성공");
-                setregion({
-                    latitude: 37.498207, // 기본 위치
-                    longitude: 127.02963, // 기본 위치
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                });
-                // 현재 위치 가져오기
-                getcurrentlocation();
-            } else {
-                console.log("위치 권한 부여 거부");
-            }
+    //         }
+    //     )
+    //     return granted === PermissionsAndroid.RESULTS.GRANTED
+    // }
+    // // 현재위치가져오기
+    // const getcurrentlocation = () => {
+    //     Geolocation.getCurrentPosition((pos) => {
+    //         const { latitude, longitude } = pos.coords
+    //         console.log("현재위치보자:", latitude, longitude);
+    //         setuserpos({ latitude, longitude }) //사용자위치업데이트
+    //         setregion({
+    //             latitude: latitude,
+    //             longitude: longitude,
+    //             latitudeDelta: 0.01,
+    //             longitudeDelta: 0.01,
+    //         })
+    //     })
+    // }
+    //검색추가
+    // useEffect(() => {
+    //     const initializeApp = async () => {
+    //         // 위치 권한 요청 및 사용자 현재 위치 설정
+    //         const hasPermission = await requestlocationPermission();
+    //         if (hasPermission) {
+    //             console.log("위치 권한 부여 성공");
+    //             setregion({
+    //                 latitude: 37.498207, // 기본 위치
+    //                 longitude: 127.02963, // 기본 위치
+    //                 latitudeDelta: 0.01,
+    //                 longitudeDelta: 0.01,
+    //             });
+    //             // 현재 위치 가져오기
+    //             getcurrentlocation();
+    //         } else {
+    //             console.log("위치 권한 부여 거부");
+    //         }
 
-            // Firebase에서 데이터 가져오기
-            const shopRef = database().ref('shop');
-            const onValueChange = shopRef.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const shopArray = Object.keys(data).map((key) => data[key]);
-                    setShops(shopArray); // 전체 매장 데이터 설정
-                    setFilteredShops(shopArray); // 초기 필터링 데이터 설정
-                }
-            });
+    //         // Firebase에서 데이터 가져오기
+    //         const shopRef = database().ref('shop');
+    //         const onValueChange = shopRef.on('value', (snapshot) => {
+    //             if (snapshot.exists()) {
+    //                 const data = snapshot.val();
+    //                 const shopArray = Object.keys(data).map((key) => data[key]);
+    //                 setShops(shopArray); // 전체 매장 데이터 설정
+    //                 setFilteredShops(shopArray); // 초기 필터링 데이터 설정
+    //             }
+    //         });
 
-            // Firebase 리스너 정리
-            return () => shopRef.off('value', onValueChange);
-        };
-        console.log("setShops", shops)
-        initializeApp();
-    }, []);
+    //         // Firebase 리스너 정리
+    //         return () => shopRef.off('value', onValueChange);
+    //     };
+    //     console.log("setShops", shops)
+    //     initializeApp();
+    // }, []);
 
-    useEffect(() => {
-        // 검색어가 변경될 때 필터링
-        if (searchQuery.trim() === '') {
-            setFilteredShops(shops); // 검색어가 없을 경우 전체 매장 표시
-        } else {
-            const filtered = shops.filter((shop) =>
-                shop.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredShops(filtered);
-        }
-        console.log("setFilteredShops", filteredShops)
-    }, [searchQuery, shops]);
-
+    // useEffect(() => {
+    //     // 검색어가 변경될 때 필터링
+    //     if (searchQuery.trim() === '') {
+    //         setFilteredShops(shops); // 검색어가 없을 경우 전체 매장 표시
+    //     } else {
+    //         const filtered = shops.filter((shop) =>
+    //             shop.name.toLowerCase().includes(searchQuery.toLowerCase())
+    //         );
+    //         setFilteredShops(filtered);
+    //     }
+    //     console.log("setFilteredShops", filteredShops)
+    // }, [searchQuery, shops]);
+    ///기존코드
     // useEffect(() => {
     //     const fetchLocation = async () => {
     //         const haspermission = await requestlocationPermission()
@@ -235,27 +235,28 @@ function sample() {
 
     return (
         <View style={{ flex: 1 }}>
-            <TextInput
-                style={styles.searchInput}
-                placeholder="매장 이름 검색"
-                value={searchQuery}
-                onChangeText={(text) => setSearchQuery(text)}
-            />
-            {region && (
-                <MapView style={{ flex: 1 }} region={region}>
-                    <Marker coordinate={userpos} title='현재위치' />
-                    {shops.map((store) => (
-                        <Marker
-                            key={store.id}
-                            coordinate={store.location}
-                            title={store.name}
-                            description={store.address}
-                        // onPress={() => handleMarkerPress(store)}
-                        />
-                    ))}
-                </MapView>
-            )
-            }
+            <Text>나오나</Text>
+            {/* <TextInput
+                    style={styles.searchInput}
+                    placeholder="매장 이름 검색"
+                    value={searchQuery}
+                    onChangeText={(text) => setSearchQuery(text)}
+                />
+                {region && (
+                    <MapView style={{ flex: 1 }} region={region}>
+                        <Marker coordinate={userpos} title='현재위치' />
+                        {shops.map((store) => (
+                            <Marker
+                                key={store.id}
+                                coordinate={store.location}
+                                title={store.name}
+                                description={store.address}
+                            // onPress={() => handleMarkerPress(store)}
+                            />
+                        ))}
+                    </MapView>
+                )
+                } */}
         </View>
     )
 }

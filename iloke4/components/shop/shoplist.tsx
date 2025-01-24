@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Image, Alert } from 'react-native';
+import { ScrollView, View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Image, Alert } from 'react-native';
 import database from '@react-native-firebase/database';
 // import { useNavigation } from '@react-navigation/native';
 
-const shoplist = () => {
+const shoplist = ({ navigation }) => {
     const [shops, setShops] = useState([]);
     const [selectedShop, setSelectedShop] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -40,45 +40,49 @@ const shoplist = () => {
     );
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity style={styles.maplmg} onPress={() => Alert.alert("뜬다")}>
-                <Text style={styles.closeButtonText}>지도보기</Text>
-            </TouchableOpacity>
-            <Text style={styles.title}>매장 리스트</Text>
-            <FlatList
-                data={shops}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContainer}
-            />
+        <ScrollView style={styles.container}>
+            <View>
+                {/* <TouchableOpacity style={styles.maplmg} onPress={() => Alert.alert("뜬다")}> */}
+                <TouchableOpacity style={styles.maplmg} onPress={() => navigation.navigate('sample')}>
 
-            {/* 모달 창 */}
-            <Modal
-                visible={modalVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={closeModal}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        {selectedShop && (
-                            <>
-                                <Image
-                                    source={require("../img/shop/store.jpg")}
-                                    style={styles.image}
-                                />
-                                <Text style={styles.modalTitle}>{selectedShop.name}</Text>
-                                <Text style={styles.modalAddress}>{selectedShop.address}</Text>
-                                <Text style={styles.modaltime}>{selectedShop.time}</Text>
-                                <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                                    <Text style={styles.closeButtonText}>닫기</Text>
-                                </TouchableOpacity>
-                            </>
-                        )}
+                    <Text style={styles.closeButtonText}>지도보기</Text>
+                </TouchableOpacity>
+                <Text style={styles.title}>매장 리스트</Text>
+                <FlatList
+                    data={shops}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContainer}
+                />
+
+                {/* 모달 창 */}
+                <Modal
+                    visible={modalVisible}
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            {selectedShop && (
+                                <>
+                                    <Image
+                                        source={require("../image/shop/store.jpg")}
+                                        style={styles.image}
+                                    />
+                                    <Text style={styles.modalTitle}>{selectedShop.name}</Text>
+                                    <Text style={styles.modalAddress}>{selectedShop.address}</Text>
+                                    <Text style={styles.modaltime}>{selectedShop.time}</Text>
+                                    <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                                        <Text style={styles.closeButtonText}>닫기</Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
+                        </View>
                     </View>
-                </View>
-            </Modal>
-        </View>
+                </Modal>
+            </View>
+        </ScrollView>
     );
 };
 

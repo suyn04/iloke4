@@ -17,6 +17,7 @@ import goods from './goods/goods';
 import goodsDetail from './goods/goodsDetail';
 import promotion from './promotion/promotion';
 import shoplist from './shop/shoplist';
+import sample from './shop/sample';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const Tab = createBottomTabNavigator(); // Footer를 위한 Bottom Tab Navigator 생성
@@ -76,6 +77,7 @@ function index() {
                         })}
                     />
                     <Stack.Screen name='goodsDetail' component={goodsDetail} />
+                    <Stack.Screen name='sample' component={sample} />
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>
