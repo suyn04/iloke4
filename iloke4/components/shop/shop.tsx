@@ -122,10 +122,11 @@ const shop = ({ navigation }) => {
                     currentLocation,
                 })
             }>
-                <Image
+                <Text style={styles.maptext}>지도보기</Text>
+                {/* <Image
                     source={require("../image/shop/store.jpg")}
                     style={styles.icon}
-                />
+                /> */}
             </TouchableOpacity>
             <Text style={styles.title}>매장 리스트</Text>
             <FlatList
@@ -247,19 +248,28 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     closeButton: {
-        backgroundColor: '#007AFF',
-        padding: 10,
+        backgroundColor: '#f294b2',
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 20,
+        paddingRight: 20,
         borderRadius: 5,
         alignItems: 'center',
         marginTop: 10,
     },
     maplmg: {
         width: 50,
-        backgroundColor: '#faf',
+        height: 40,
+        backgroundColor: '#f294b2',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
         marginTop: 10,
+    },
+    maptext: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     closeButtonText: {
         color: '#fff',
