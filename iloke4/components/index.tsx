@@ -17,6 +17,7 @@ import goods from './goods/goods';
 import goodsDetail from './goods/goodsDetail';
 import promotion from './promotion/promotion';
 import shop from './shop/shop';
+import map from './shop/map';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const Tab = createBottomTabNavigator(); // Footer를 위한 Bottom Tab Navigator 생성
@@ -62,7 +63,7 @@ function index() {
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="Stack" component={AppTabs} 
+          <Stack.Screen name="Stack" component={AppTabs}
             options={({ navigation }) => ({
               headerTitle: () => (
                 <TouchableOpacity onPress={() => navigation.navigate('Stack', { screen: 'main' })}>
@@ -75,7 +76,8 @@ function index() {
               headerTitleAlign: 'center',
             })}
           />
-          <Stack.Screen name='goodsDetail' component={goodsDetail}/>
+          <Stack.Screen name='goodsDetail' component={goodsDetail} />
+          <Stack.Screen name='주변매장찾기' component={map} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
