@@ -1,21 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Image, Alert } from 'react-native';
-import database from '@react-native-firebase/database';
-// import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 
 const map = ({ route }) => {
-    const { shops } = route.params; // Goods에서 전달된 데이터
-    console.log("item", shops)
+    const { shops, currentLocation } = route.params;
+    console.log("정보오나", shops, currentLocation)
+    console.log("가게위치", shops[0].location)
     return (
-        <ScrollView >
-            <View>
-                <Text>매장 리스트</Text>
+        <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                region={{
+                    latitude: currentLocation.latitude,
+                    longitude: currentLocation.longitude,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
+                }}
+                showsUserLocation={true}
+            >
+                {/* 현재 위치 */}
+                <Marker
+                    coordinate={currentLocation}
+                    title="현재 위치"
+                    pinColor="blue"
+                />
 
-            </View>
-        </ScrollView>
+                {/* 가게 마커 */}
+                {shops && shops.map((shop) => {
+                    if (!shop.location || !shop.location.latitude || !shop.location.longitude) {
+                        return null;
+                    }
+                    return (
+                        <Marker
+                            key={shop.id}
+                            coordinate={{
+                                latitude: shop.location.latitude,
+                                longitude: shop.location.longitude,
+                            }}
+                            title={shop.name}
+                            description={shop.address || '주소 정보 없음'}
+                        />
+                    )
+                })}
+            </MapView>
+        </View>
     );
 };
 
-
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    map: {
+        flex: 1,
+    },
+});
 
 export default map;

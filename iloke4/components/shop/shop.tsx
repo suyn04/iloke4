@@ -1,27 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Image, Alert } from 'react-native';
+import { ScrollView, View, Text, FlatList, StyleSheet, TouchableOpacity, PermissionsAndroid, ActivityIndicator, Modal, Image } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import database from '@react-native-firebase/database';
-// import { useNavigation } from '@react-navigation/native';
+
+const haversine = (lat1, lon1, lat2, lon2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const earthRadius = 6371000; // 지구 반지름 (m)
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // m 단위 반환
+};
+
 
 const shop = ({ navigation }) => {
     const [shops, setShops] = useState([]);
+    const [currentLocation, setCurrentLocation] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-    // const navigation = useNavigation();
-    //데이터불러오기
+    // 위치 권한 요청 및 현재 위치 가져오기
+    const requestLocationPermission = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    title: '위치 권한 요청',
+                    message: '현재 위치를 사용하려면 권한이 필요합니다.',
+                    buttonNeutral: '나중에',
+                    buttonNegative: '취소',
+                    buttonPositive: '확인',
+                }
+            );
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } catch (err) {
+            console.warn(err);
+            return false;
+        }
+    };
+
     useEffect(() => {
+        const fetchLocation = async () => {
+            const hasPermission = await requestLocationPermission();
+            if (!hasPermission) return;
+
+            Geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setCurrentLocation({ latitude, longitude });
+                },
+                (error) => console.error(error),
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        };
+
+        fetchLocation();
+
         const shopRef = database().ref('shop');
-        const onValueChange = shopRef.on('value', (snapshot) => {
+        shopRef.on('value', (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 const shopArray = Object.keys(data).map((key) => data[key]);
                 setShops(shopArray);
             }
+
         });
 
-        return () => shopRef.off('value', onValueChange);
+        return () => database().ref('shop').off();
     }, []);
-
     //모달창
     const openModal = (shop) => {
         setSelectedShop(shop);
@@ -32,62 +81,85 @@ const shop = ({ navigation }) => {
         setModalVisible(false);
         setSelectedShop(null);
     };
+    const renderItem = ({ item }) => {
+        const distance =
+            currentLocation &&
+            haversine(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                item.location.latitude,
+                item.location.longitude
+            );
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => openModal(item)} style={styles.card}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.address}>{item.address}</Text>
-        </TouchableOpacity>
-    );
+        const formattedDistance =
+            distance >= 1000
+                ? `${(distance / 1000).toFixed(2)} km`
+                : `${Math.round(distance)} m`;
+
+        return (
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => openModal(item)}
+
+            >
+                <View style={styles.head}>
+                    <Text style={styles.name}>{item.name}</Text>
+                    {distance && <Text style={styles.distance}>{formattedDistance}</Text>}
+                </View>
+
+                <Text style={styles.address}>{item.address}</Text>
+
+            </TouchableOpacity>
+        );
+    };
+
 
     return (
         <ScrollView style={styles.container}>
-            <View>
-                {/* <TouchableOpacity style={styles.maplmg} onPress={() => Alert.alert("뜬다")}> */}
-                <TouchableOpacity style={styles.maplmg} onPress={() => navigation.navigate('주변매장찾기', { shops })}>
-                    <Image
-                        source={require("../image/shop/store.jpg")}
-                        style={styles.icon}
-                    />
-                    {/* <Text style={styles.closeButtonText}>지도보기
-                    googlemaps
-                    </Text> */}
-                </TouchableOpacity>
-                <Text style={styles.title}>매장 리스트</Text>
-                <FlatList
-                    data={shops}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.listContainer}
+            <TouchableOpacity style={styles.maplmg} onPress={() =>
+                navigation.navigate('주변매장찾기', {
+                    shops,
+                    currentLocation,
+                })
+            }>
+                <Image
+                    source={require("../image/shop/store.jpg")}
+                    style={styles.icon}
                 />
-
-                {/* 모달 창 */}
-                <Modal
-                    visible={modalVisible}
-                    transparent={true}
-                    animationType="fade"
-                    onRequestClose={closeModal}
-                >
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            {selectedShop && (
-                                <>
-                                    <Image
-                                        source={require("../image/shop/store.jpg")}
-                                        style={styles.image}
-                                    />
-                                    <Text style={styles.modalTitle}>{selectedShop.name}</Text>
-                                    <Text style={styles.modalAddress}>{selectedShop.address}</Text>
-                                    <Text style={styles.modaltime}>{selectedShop.time}</Text>
-                                    <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                                        <Text style={styles.closeButtonText}>닫기</Text>
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </View>
+            </TouchableOpacity>
+            <Text style={styles.title}>매장 리스트</Text>
+            <FlatList
+                data={shops}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContainer}
+            />
+            {/* 모달 창 */}
+            <Modal
+                visible={modalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        {selectedShop && (
+                            <>
+                                <Image
+                                    source={require("../image/shop/store.jpg")}
+                                    style={styles.image}
+                                />
+                                <Text style={styles.modalTitle}>{selectedShop.name}</Text>
+                                <Text style={styles.modalAddress}>{selectedShop.address}</Text>
+                                <Text style={styles.modaltime}>{selectedShop.time}</Text>
+                                <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                                    <Text style={styles.closeButtonText}>닫기</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
                     </View>
-                </Modal>
-            </View>
+                </View>
+            </Modal>
         </ScrollView>
     );
 };
@@ -96,7 +168,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f9f9f9',
     },
     title: {
         fontSize: 24,
@@ -116,11 +187,10 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 8,
         marginBottom: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
         elevation: 3,
+    },
+    head: {
+        flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
     },
     name: {
         fontSize: 18,
@@ -129,6 +199,11 @@ const styles = StyleSheet.create({
     address: {
         fontSize: 14,
         color: '#666',
+    },
+    distance: {
+        fontSize: 14,
+        color: '#333',
+        marginTop: 5,
     },
     modalOverlay: {
         flex: 1,
