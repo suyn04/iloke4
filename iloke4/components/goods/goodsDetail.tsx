@@ -9,7 +9,6 @@ function goodsDetail({ route }) {
 
     // Realtime Database에서 댓글 가져오기
     useEffect(() => {
-        console.log('item.id:', item.id);
         const commentsRef = database().ref(`/comments/${item.id}`); // 상품 ID 기반 경로
         const onValueChange = commentsRef.on('value', (snapshot) => {
             const fetchedComments = [];
