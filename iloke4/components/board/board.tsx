@@ -26,19 +26,24 @@ function board() {
     const [imgUrls, setImgUrls] = useState([]);
     // 선택한 이미지 파일
     const [fileName, setFileName] = useState(null)
-
     // 카메라 및 갤러리 권한 상태
     const [camChk, setCamChk] = useState(false);
     const [galChk, setGalChk] = useState(false);
-
     // 목록 상태 관리
     const [datas, setDatas] = useState([])
-
     // modal select 관리
     const [selectedValue, setSelectedValue] = useState("");
-    
      // 현재 열려 있는 게시글 ID
     const [expandedId, setExpandedId] = useState(null);
+
+    function formatDate(dateString){
+        const dateObj = new Date(dateString)
+        const year = dateObj.getFullYear()
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, '0')
+        const date = dateObj.getDate().toString().padStart(2, '0')
+
+        return `${year}.${month}.${date}`
+    }
 
     // 글쓰기 목록 불러오기
     const dataList = () => {
@@ -48,19 +53,18 @@ function board() {
             let arr = []
 
             for(const key in data){
-                const regString = data[key].regdate
-                const regStringDate = new Date(regString)
-                const year = regStringDate.getFullYear()
-                const month = (regStringDate.getMonth() + 1).toString().padStart(2, '0')
-                const date = regStringDate.getDate()
-                
-                const regDate = `${year}.${month}.${date}`
-                
-                arr.push({id:key, regDate:regDate, ...data[key]})
+                const regDate = formatDate(data[key].regdate)
+                const upDate = data[key].update ? formatDate(data[key].update) : null
+
+                console.log('regDate:', regDate)
+                console.log('upDate:', upDate)
+
+
+                arr.push({id:key, regDate:regDate, upDate:upDate, ...data[key]})
             }
 
             setDatas(arr)
-            // console.log('데이터리스트:', arr)
+            console.log('데이터리스트:', arr)
         })
     }
 
@@ -316,7 +320,12 @@ function board() {
                         <View style={styles.post}>
                             <Text>{item.selected}</Text>
                             <Text style={styles.postTitle}>{item.title}</Text>
-                            <Text>{item.regDate}</Text>
+                            {/* 수정글의 경우 수정시간이 보이게 */}
+                            {item.update ? (
+                                <Text>{item.upDate}</Text>
+                            ) : (
+                                <Text>{item.regDate}</Text>
+                            )}
                             
                             {/* 아코디언 내용 */}
                             {expandedId === item.id && (
