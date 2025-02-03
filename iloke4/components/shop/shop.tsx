@@ -43,7 +43,7 @@ const shop = ({ navigation }) => {
             return false;
         }
     };
-    //수정후
+    //패치정렬
     useEffect(() => {
         const fetchData = async () => {
             const hasPermission = await requestLocationPermission();
@@ -92,69 +92,6 @@ const shop = ({ navigation }) => {
 
         fetchData();
     }, [currentLocation]);
-    //수정전
-    // useEffect(() => {
-    //     const fetchLocation = async () => {
-    //         const hasPermission = await requestLocationPermission();
-    //         if (!hasPermission) return;
-
-    //         Geolocation.getCurrentPosition(
-    //             (position) => {
-    //                 const { latitude, longitude } = position.coords;
-    //                 setCurrentLocation({ latitude, longitude });
-    //             },
-    //             (error) => console.error(error),
-    //             { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    //         );
-    //     };
-
-    //     fetchLocation();
-
-    //     const shopRef = database().ref('shop');
-    //     shopRef.on('value', (snapshot) => {
-    //         if (snapshot.exists()) {
-    //             const data = snapshot.val();
-    //             const shopArray = Object.keys(data).map((key) => ({
-    //                 id: key,
-    //                 ...data[key]
-    //             }));
-    //             setShops(shopArray);
-    //         }
-    //     });
-    //     setloading(false)
-    //     return () => database().ref('shop').off();
-    // }, []);
-
-    //거리정렬
-    // const sorted = useMemo(() => {
-    //     if (!currentLocation || shops.length === 0) return shops;
-
-    //     return shops
-    //         .map((shop) => ({
-    //             ...shop,
-    //             distance: haversine(
-    //                 currentLocation.latitude,
-    //                 currentLocation.longitude,
-    //                 shop.location.latitude,
-    //                 shop.location.longitude
-    //             ),
-    //         }))
-    //         .sort((a, b) => a.distance - b.distance); // 거리 오름차순 정렬
-    // }, [shops, currentLocation]);
-    //정렬최종
-    // const sorted = currentLocation
-    //     ? shops
-    //         .map((shop) => ({
-    //             ...shop,
-    //             distance: haversine(
-    //                 currentLocation.latitude,
-    //                 currentLocation.longitude,
-    //                 shop.location.latitude,
-    //                 shop.location.longitude
-    //             ),
-    //         }))
-    //         .sort((a, b) => a.distance - b.distance)
-    //     : shops;
 
     if (loading) {
         return (
