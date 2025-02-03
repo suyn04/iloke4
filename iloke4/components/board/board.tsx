@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
     },
     modifyButton: {
         marginTop: 10,
-        backgroundColor: '#007bff',
+        backgroundColor: '#f294b2',
         padding: 5,
         borderRadius: 5,
         alignSelf: 'flex-end',
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         marginTop: 10,
-        backgroundColor: '#ff6b6b',
+        backgroundColor: '#000',
         padding: 5,
         borderRadius: 5,
         alignSelf: 'flex-end',
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     addButton: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#000',
         padding: 15,
         borderRadius: 30,
         position: 'absolute',
@@ -603,7 +603,6 @@ const styles = StyleSheet.create({
         marginBottom:10
     },
     pickerStyle:{
-        display:'block',
         borderWidth:1,
         borderColor:'#333'
     },
