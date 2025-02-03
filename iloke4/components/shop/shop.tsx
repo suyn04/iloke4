@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { ScrollView, View, Text, FlatList, StyleSheet, TouchableOpacity, PermissionsAndroid, ActivityIndicator, Modal, Image } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import database from '@react-native-firebase/database';
@@ -22,6 +22,8 @@ const shop = ({ navigation }) => {
     const [currentLocation, setCurrentLocation] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [loading, setloading] = useState(true);
+
     // 위치 권한 요청 및 현재 위치 가져오기
     const requestLocationPermission = async () => {
         try {
@@ -41,36 +43,83 @@ const shop = ({ navigation }) => {
             return false;
         }
     };
-
+    //패치정렬
     useEffect(() => {
-        const fetchLocation = async () => {
+        const fetchData = async () => {
             const hasPermission = await requestLocationPermission();
             if (!hasPermission) return;
 
             Geolocation.getCurrentPosition(
                 (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setCurrentLocation({ latitude, longitude });
+                    setCurrentLocation({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
                 },
                 (error) => console.error(error),
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
             );
+
+            const shopRef = database().ref('shop');
+            shopRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const shopArray = Object.keys(data).map((key) => ({
+                        id: key,
+                        ...data[key]
+                    }));
+
+                    if (currentLocation) {
+                        const sorted = shopArray
+                            .map((shop) => ({
+                                ...shop,
+                                distance: haversine(
+                                    currentLocation.latitude,
+                                    currentLocation.longitude,
+                                    shop.location.latitude,
+                                    shop.location.longitude
+                                ),
+                            }))
+                            .sort((a, b) => a.distance - b.distance);
+                        setShops(sorted);
+                    }
+                }
+                setloading(false);
+            });
+
+            return () => database().ref('shop').off();
         };
 
-        fetchLocation();
+        fetchData();
+    }, [currentLocation]);
 
-        const shopRef = database().ref('shop');
-        shopRef.on('value', (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const shopArray = Object.keys(data).map((key) => data[key]);
-                setShops(shopArray);
-            }
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text>매장 정보를 불러오는 중...</Text>
+            </View>
+        );
+    }
 
-        });
+    //이미지배열
+    const Shopimages = [
+        { id: 1, img: require("../image/shop/store21.jpg") },
+        { id: 2, img: require("../image/shop/store22.jpg") },
+        { id: 3, img: require("../image/shop/store23.jpg") },
+        { id: 4, img: require("../image/shop/store24.jpg") },
+        { id: 5, img: require("../image/shop/store25.jpg") },
+        { id: 6, img: require("../image/shop/store26.jpg") },
+        { id: 7, img: require("../image/shop/store27.jpg") },
+        { id: 8, img: require("../image/shop/store28.jpg") },
+        { id: 9, img: require("../image/shop/store29.jpg") },
+        // { id: 10, img: require("../image/shop/store2.jpg") },
+    ];
+    const selectimage = (shopid) => {
+        const oneimg = Shopimages.find((img) => img.id === shopid);
+        return oneimg ? oneimg.img : require("../image/shop/store.jpg");
+    };
 
-        return () => database().ref('shop').off();
-    }, []);
+
     //모달창
     const openModal = (shop) => {
         setSelectedShop(shop);
@@ -82,37 +131,33 @@ const shop = ({ navigation }) => {
         setSelectedShop(null);
     };
     const renderItem = ({ item }) => {
-        const distance =
-            currentLocation &&
-            haversine(
-                currentLocation.latitude,
-                currentLocation.longitude,
-                item.location.latitude,
-                item.location.longitude
-            );
+        // const distance =
+        //     currentLocation &&
+        //     haversine(
+        //         currentLocation.latitude,
+        //         currentLocation.longitude,
+        //         item.location.latitude,
+        //         item.location.longitude
+        //     );
 
         const formattedDistance =
-            distance >= 1000
-                ? `${(distance / 1000).toFixed(2)} km`
-                : `${Math.round(distance)} m`;
+            item.distance >= 1000
+                ? `${(item.distance / 1000).toFixed(2)} km`
+                : `${Math.round(item.distance)} m`;
 
         return (
             <TouchableOpacity
                 style={styles.card}
                 onPress={() => openModal(item)}
-
             >
                 <View style={styles.head}>
                     <Text style={styles.name}>{item.name}</Text>
-                    {distance && <Text style={styles.distance}>{formattedDistance}</Text>}
+                    {item.distance && <Text style={styles.distance}>{formattedDistance}</Text>}
                 </View>
-
                 <Text style={styles.address}>{item.address}</Text>
-
             </TouchableOpacity>
         );
     };
-
 
     return (
         <ScrollView style={styles.container}>
@@ -134,6 +179,7 @@ const shop = ({ navigation }) => {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContainer}
+                scrollEnabled={false}
             />
             {/* 모달 창 */}
             <Modal
@@ -146,8 +192,15 @@ const shop = ({ navigation }) => {
                     <View style={styles.modalContent}>
                         {selectedShop && (
                             <>
+                                {/* {Shopimages.map((Shopimage) => (
+                                    <Image
+                                        key={Shopimage.id}
+                                        source={Shopimage.img} 
+                                        style={styles.image}
+                                    />
+                                ))} */}
                                 <Image
-                                    source={require("../image/shop/store.jpg")}
+                                    source={selectimage(selectedShop.id)}
                                     style={styles.image}
                                 />
                                 <Text style={styles.modalTitle}>{selectedShop.name}</Text>
@@ -275,6 +328,11 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

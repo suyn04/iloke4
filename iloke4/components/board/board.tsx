@@ -26,19 +26,25 @@ function board() {
     const [imgUrls, setImgUrls] = useState([]);
     // 선택한 이미지 파일
     const [fileName, setFileName] = useState(null)
-
     // 카메라 및 갤러리 권한 상태
     const [camChk, setCamChk] = useState(false);
     const [galChk, setGalChk] = useState(false);
-
     // 목록 상태 관리
     const [datas, setDatas] = useState([])
-
     // modal select 관리
     const [selectedValue, setSelectedValue] = useState("");
-    
      // 현재 열려 있는 게시글 ID
     const [expandedId, setExpandedId] = useState(null);
+
+    // 날짜 포멧팅 함수
+    function formatDate(dateString){
+        const dateObj = new Date(dateString)
+        const year = dateObj.getFullYear()
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, '0')
+        const date = dateObj.getDate().toString().padStart(2, '0')
+
+        return `${year}.${month}.${date}`
+    }
 
     // 글쓰기 목록 불러오기
     const dataList = () => {
@@ -48,19 +54,15 @@ function board() {
             let arr = []
 
             for(const key in data){
-                const regString = data[key].regdate
-                const regStringDate = new Date(regString)
-                const year = regStringDate.getFullYear()
-                const month = (regStringDate.getMonth() + 1).toString().padStart(2, '0')
-                const date = regStringDate.getDate()
-                
-                const regDate = `${year}.${month}.${date}`
-                
-                arr.push({id:key, regDate:regDate, ...data[key]})
+                const regDate = formatDate(data[key].regdate)
+                const upDate = data[key].update ? formatDate(data[key].update) : null
+
+                // 새로운 객체에 변환된 날짜 값 push
+                arr.push({id:key, regDate:regDate, upDate:upDate, ...data[key]})
             }
 
             setDatas(arr)
-            // console.log('데이터리스트:', arr)
+            console.log('데이터리스트:', arr)
         })
     }
 
@@ -277,6 +279,7 @@ function board() {
     // 수정버튼 클릭 시
     const modifyPost = (item) => {
         setEditContent({ ...item }); // 수정하려는 아이템을 editContent로 설정
+        console.log(editContent)
         setEditModalVisible(true);
     };
     
@@ -289,6 +292,7 @@ function board() {
                 title: editContent.title,
                 content: editContent.content,
                 update: new Date().toISOString(),
+                imgUrl: editContent.imgUrl,
             });
     
             Alert.alert("수정 완료", "게시글이 수정되었습니다.");
@@ -303,7 +307,17 @@ function board() {
     // 이미지 삭제
     const handleDeleteImage = (index) => {
         // 해당 인덱스의 이미지를 배열에서 제거
+        console.log('index:',index)
         setImgUrls((prevUrls) => prevUrls.filter((_, idx) => idx !== index));
+    };
+
+    // 수정 모달 내 이미지 삭제
+    const modifyDeleteImage = (index) => {
+        console.log('index:',index)
+        setEditContent((prevContent) => ({
+            ...prevContent,
+            imgUrl: prevContent.imgUrl.filter((_, idx) => idx !== index),
+        }));
     };
 
     return (
@@ -316,7 +330,12 @@ function board() {
                         <View style={styles.post}>
                             <Text>{item.selected}</Text>
                             <Text style={styles.postTitle}>{item.title}</Text>
-                            <Text>{item.regDate}</Text>
+                            {/* 수정글의 경우 수정시간이 보이게 */}
+                            {item.update ? (
+                                <Text>{item.upDate} 수정됨</Text>
+                            ) : (
+                                <Text>{item.regDate}</Text>
+                            )}
                             
                             {/* 아코디언 내용 */}
                             {expandedId === item.id && (
@@ -401,14 +420,14 @@ function board() {
                                 multiline
                             />
                             {/* 모달 내 이미지 표시 */}
-                            {imgUrls && imgUrls.map((uri, idx) => (
-                                <View key={idx} style={styles.imgWrap}>
+                            {imgUrls && imgUrls.map((uri, index) => (
+                                <View key={index} style={styles.imgWrap}>
                                     <Image
                                         source={{ uri }}
                                         style={{ width: 200, height: 200, marginTop: 20 }}
                                     />
-                                    <TouchableOpacity style={styles.imgDelBtn} onPress={() => handleDeleteImage(idx)}>
-                                        <Text style={styles.deleteText}>x</Text>
+                                    <TouchableOpacity style={styles.imgDelBtn} onPress={() => handleDeleteImage(index)}>
+                                        <Text style={styles.imgDeleteText}>x</Text>
                                     </TouchableOpacity>
                                 </View>
                             ))}
@@ -460,12 +479,16 @@ function board() {
                                 multiline
                             />
                             {/* 모달 내 이미지 표시 */}
-                            {editContent.imgUrl && editContent.imgUrl.map((uri, idx) => (
-                                <Image
-                                    key={idx}
-                                    source={{ uri }}
-                                    style={{ width: 200, height: 200, marginTop: 20 }}
-                                />
+                            {editContent.imgUrl && editContent.imgUrl.map((uri, index) => (
+                                <View key={index} style={styles.imgWrap}>
+                                    <Image
+                                        source={{ uri }}
+                                        style={{ width: 200, height: 200, marginTop: 20 }}
+                                    />
+                                    <TouchableOpacity style={styles.imgDelBtn} onPress={() => modifyDeleteImage(index)}>
+                                        <Text style={styles.imgDeleteText}>x</Text>
+                                    </TouchableOpacity>
+                                </View>
                             ))}
                             <View style={styles.modalButtons}>
                                 <Button title="취소" onPress={cancelPost} />
@@ -520,7 +543,7 @@ const styles = StyleSheet.create({
     },
     modifyButton: {
         marginTop: 10,
-        backgroundColor: '#007bff',
+        backgroundColor: '#f294b2',
         padding: 5,
         borderRadius: 5,
         alignSelf: 'flex-end',
@@ -532,7 +555,7 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         marginTop: 10,
-        backgroundColor: '#ff6b6b',
+        backgroundColor: '#000',
         padding: 5,
         borderRadius: 5,
         alignSelf: 'flex-end',
@@ -548,7 +571,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     addButton: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#000',
         padding: 15,
         borderRadius: 30,
         position: 'absolute',
@@ -580,7 +603,6 @@ const styles = StyleSheet.create({
         marginBottom:10
     },
     pickerStyle:{
-        display:'block',
         borderWidth:1,
         borderColor:'#333'
     },
@@ -605,14 +627,14 @@ const styles = StyleSheet.create({
     },
     imgDelBtn: {
         position: 'absolute',
-        top: 0,
-        right: 0,
+        top: 10,
+        left: 170,
         backgroundColor: 'transparent',
         padding: 10,
     },
-    deleteText: {
+    imgDeleteText: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 24,
     },
 });
 
