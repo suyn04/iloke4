@@ -36,6 +36,7 @@ function board() {
      // 현재 열려 있는 게시글 ID
     const [expandedId, setExpandedId] = useState(null);
 
+    // 날짜 포멧팅 함수
     function formatDate(dateString){
         const dateObj = new Date(dateString)
         const year = dateObj.getFullYear()
@@ -56,10 +57,7 @@ function board() {
                 const regDate = formatDate(data[key].regdate)
                 const upDate = data[key].update ? formatDate(data[key].update) : null
 
-                console.log('regDate:', regDate)
-                console.log('upDate:', upDate)
-
-
+                // 새로운 객체에 변환된 날짜 값 push
                 arr.push({id:key, regDate:regDate, upDate:upDate, ...data[key]})
             }
 
@@ -281,6 +279,7 @@ function board() {
     // 수정버튼 클릭 시
     const modifyPost = (item) => {
         setEditContent({ ...item }); // 수정하려는 아이템을 editContent로 설정
+        console.log(editContent)
         setEditModalVisible(true);
     };
     
@@ -293,6 +292,7 @@ function board() {
                 title: editContent.title,
                 content: editContent.content,
                 update: new Date().toISOString(),
+                imgUrl: editContent.imgUrl,
             });
     
             Alert.alert("수정 완료", "게시글이 수정되었습니다.");
@@ -307,7 +307,17 @@ function board() {
     // 이미지 삭제
     const handleDeleteImage = (index) => {
         // 해당 인덱스의 이미지를 배열에서 제거
+        console.log('index:',index)
         setImgUrls((prevUrls) => prevUrls.filter((_, idx) => idx !== index));
+    };
+
+    // 수정 모달 내 이미지 삭제
+    const modifyDeleteImage = (index) => {
+        console.log('index:',index)
+        setEditContent((prevContent) => ({
+            ...prevContent,
+            imgUrl: prevContent.imgUrl.filter((_, idx) => idx !== index),
+        }));
     };
 
     return (
@@ -322,7 +332,7 @@ function board() {
                             <Text style={styles.postTitle}>{item.title}</Text>
                             {/* 수정글의 경우 수정시간이 보이게 */}
                             {item.update ? (
-                                <Text>{item.upDate}</Text>
+                                <Text>{item.upDate} 수정됨</Text>
                             ) : (
                                 <Text>{item.regDate}</Text>
                             )}
@@ -410,14 +420,14 @@ function board() {
                                 multiline
                             />
                             {/* 모달 내 이미지 표시 */}
-                            {imgUrls && imgUrls.map((uri, idx) => (
-                                <View key={idx} style={styles.imgWrap}>
+                            {imgUrls && imgUrls.map((uri, index) => (
+                                <View key={index} style={styles.imgWrap}>
                                     <Image
                                         source={{ uri }}
                                         style={{ width: 200, height: 200, marginTop: 20 }}
                                     />
-                                    <TouchableOpacity style={styles.imgDelBtn} onPress={() => handleDeleteImage(idx)}>
-                                        <Text style={styles.deleteText}>x</Text>
+                                    <TouchableOpacity style={styles.imgDelBtn} onPress={() => handleDeleteImage(index)}>
+                                        <Text style={styles.imgDeleteText}>x</Text>
                                     </TouchableOpacity>
                                 </View>
                             ))}
@@ -469,12 +479,16 @@ function board() {
                                 multiline
                             />
                             {/* 모달 내 이미지 표시 */}
-                            {editContent.imgUrl && editContent.imgUrl.map((uri, idx) => (
-                                <Image
-                                    key={idx}
-                                    source={{ uri }}
-                                    style={{ width: 200, height: 200, marginTop: 20 }}
-                                />
+                            {editContent.imgUrl && editContent.imgUrl.map((uri, index) => (
+                                <View key={index} style={styles.imgWrap}>
+                                    <Image
+                                        source={{ uri }}
+                                        style={{ width: 200, height: 200, marginTop: 20 }}
+                                    />
+                                    <TouchableOpacity style={styles.imgDelBtn} onPress={() => modifyDeleteImage(index)}>
+                                        <Text style={styles.imgDeleteText}>x</Text>
+                                    </TouchableOpacity>
+                                </View>
                             ))}
                             <View style={styles.modalButtons}>
                                 <Button title="취소" onPress={cancelPost} />
@@ -614,14 +628,14 @@ const styles = StyleSheet.create({
     },
     imgDelBtn: {
         position: 'absolute',
-        top: 0,
-        right: 0,
+        top: 10,
+        left: 170,
         backgroundColor: 'transparent',
         padding: 10,
     },
-    deleteText: {
+    imgDeleteText: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 24,
     },
 });
 
