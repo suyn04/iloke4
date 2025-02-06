@@ -17,7 +17,7 @@ const haversine = (lat1, lon1, lat2, lon2) => {
 };
 
 
-const shop = ({ navigation }) => {
+const shoppnew = ({ navigation }) => {
     const [shops, setShops] = useState([]);
     const [currentLocation, setCurrentLocation] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
@@ -47,36 +47,70 @@ const shop = ({ navigation }) => {
             return false;
         }
     };
-    //패치정렬
+    //현재위치패치
+    const fetchCurrentLocation = () => {
+        return new Promise((resolve, reject) => {
+            Geolocation.getCurrentPosition(
+                (position) => {
+                    const location = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    };
+                    setCurrentLocation(location);
+                    resolve(location);
+                },
+                (error) => {
+                    console.error("현재 위치를 가져오는 데 실패함:", error);
+                    reject(error);
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        });
+    };
+    const checkGPS = async () => {
 
+        Geolocation.getCurrentPosition(
+            (position) => {
+                console.log("GPS 사용 가능", position);
+            },
+            (error) => {
+                console.error("GPS가 비활성화됨. 위치 설정을 확인하세요.", error);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+
+    };
+
+    //패치정렬
     const fetchData = async () => {
         const hasPermission = await requestLocationPermission();
         if (!hasPermission) return;
 
-        Geolocation.getCurrentPosition(
-            (position) => {
-                setCurrentLocation({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                });
-            },
-            (error) => console.error(error),
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
-
-        const shopRef = database().ref('shop');
-        shopRef.on('value', (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const shopArray = Object.keys(data).map((key) => ({
-                    id: key,
-                    ...data[key]
-                }));
-                setShops(shopArray);
+        try {
+            await checkGPS();
+            const location = await fetchCurrentLocation();
+            if (!location) {
+                console.error("현재 위치 정보를 가져올 수 없습니다.");
+                return;
             }
-            setloading(false);
-        });
-        return () => database().ref('shop').off();
+
+            const shopRef = database().ref('shop');
+            shopRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const shopArray = Object.keys(data).map((key) => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                    setShops(shopArray);
+                }
+                setloading(false);
+            });
+            return () => database().ref('shop').off();
+        }
+        catch (error) {
+            console.error("fetchData오류")
+        }
     };
     useEffect(() => {
         fetchData();
@@ -170,7 +204,7 @@ const shop = ({ navigation }) => {
                     style={styles.icon}
                 /> */}
             </TouchableOpacity>
-            <Text style={styles.title}>매장 리스트</Text>
+            <Text style={styles.title}>매장 리스트s</Text>
             <FlatList
                 data={sorted}
                 renderItem={renderItem}
@@ -333,4 +367,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default shop;
+export default shoppnew;

@@ -16,7 +16,7 @@ import board from './board/board';
 import goods from './goods/goods';
 import goodsDetail from './goods/goodsDetail';
 import promotion from './promotion/promotion';
-import shop from './shop/shopp';
+import shop from './shop/shoppnew';
 import map from './shop/map';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import promotionDetail from './promotion/promotionDetail';
