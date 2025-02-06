@@ -33,7 +33,7 @@ const shoppnew = ({ navigation }) => {
             ]);
 
             if (
-                granted["android.permission.ACCESS_FINE_LOCATION"] === PermissionsAndroid.RESULTS.GRANTED ||
+                granted["android.permission.ACCESS_FINE_LOCATION"] === PermissionsAndroid.RESULTS.GRANTED &&
                 granted["android.permission.ACCESS_COARSE_LOCATION"] === PermissionsAndroid.RESULTS.GRANTED
             ) {
                 console.log("위치 권한 허용됨");
@@ -50,6 +50,7 @@ const shoppnew = ({ navigation }) => {
     //현재위치패치
     const fetchCurrentLocation = () => {
         return new Promise((resolve, reject) => {
+            console.log('확인:', Geolocation)
             Geolocation.getCurrentPosition(
                 (position) => {
                     const location = {
@@ -87,7 +88,7 @@ const shoppnew = ({ navigation }) => {
         if (!hasPermission) return;
 
         try {
-            await checkGPS();
+         //   await checkGPS();
             const location = await fetchCurrentLocation();
             if (!location) {
                 console.error("현재 위치 정보를 가져올 수 없습니다.");
@@ -204,7 +205,7 @@ const shoppnew = ({ navigation }) => {
                     style={styles.icon}
                 /> */}
             </TouchableOpacity>
-            <Text style={styles.title}>매장 리스트s</Text>
+            <Text style={styles.title}>매장 리스트</Text>
             <FlatList
                 data={sorted}
                 renderItem={renderItem}

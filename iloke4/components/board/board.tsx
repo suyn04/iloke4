@@ -308,12 +308,14 @@ function board() {
 
       setEditContent('');
       Alert.alert('수정 완료', '게시글이 수정되었습니다.');
+      setImgUrls([]); // 이미지 초기화
       setEditModalVisible(false); // 수정 후 모달 닫기
       setExpandedId(null); // 선택된 아코디언 접기
     } catch (error) {
       console.error('수정 중 오류 발생:', error);
       Alert.alert('수정 실패', '게시글 수정 중 오류가 발생했습니다.');
     }
+
   };
 
   // 이미지 삭제
